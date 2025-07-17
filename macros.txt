@@ -1,0 +1,444 @@
+macros:
+  wmbus-list:
+    description: List all available wmbus devices of gateway
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-list
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-list '{"type":"get","path":"wm"}'
+  wmbus-bind-list:
+    description: List all available wmbus devices of gateway
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-bind-list
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-bind-list '{"type":"get","path":"wm/dev"}'
+  ssa-test:
+    description: Check if squidsmartapp replies to wmbus-list
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/response/ssa-test
+      - pub gateway/$1/request/ssa-test '{"type":"get","path":"wm"}'
+  ssa-request:
+    description: Perform a squidsmartapp request
+    arguments: 
+      - <gw-eui>
+      - <request-json>
+    commands:
+      - sub gateway/$1/ssapi/zigbee/response/ssa-request
+      - pub gateway/$1/ssapi/zigbee/request/ssa-request '$2'
+  ssa-request-old:
+    description: Perform a squidsmartapp request
+    arguments: 
+      - <gw-eui>
+      - <request-json>
+    commands:
+      - sub $1/response/ssa-request-old
+      - pub $1/request/ssa-request-old '$2'
+  command:
+    description: Execute command on gateway
+    arguments: 
+      - <gw-eui> 
+      - <command>
+      - <payload>
+    commands:
+      - sub gateway/$1/command/#
+      - pub gateway/$1/command/$2 '$3'
+  zb-scan:
+    description: Start scanning for ZigBee devices
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/ssapi/zigbee/response/zb-scan
+      - pub gateway/$1/ssapi/zigbee/request/zb-scan '{"type":"update","path":"zb","data":{"autoAdd":true,"enableScan":true}}'
+      - sub $1/response/334 020000010000$1/update/zb/#
+      - pub $1/request/334 '{"type":"update","path":"zb","data":{"autoAdd":true,"enableScan":true}}'
+  zb-scan-stop:
+    description: Stop scanning for ZigBee devices
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/ssapi/zigbee/response/zb-scan
+      - pub gateway/$1/ssapi/zigbee/request/zb-scan '{"type":"update","path":"zb","data":{"autoAdd":false,"enableScan":false}}'
+      - sub $1/response/334 020000010000$1/update/zb/#
+      - pub $1/request/334 '{"type":"update","path":"zb","data":{"autoAdd":false,"enableScan":false}}'
+  zb-list:
+    description: List all connected ZigBee devices
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/ssapi/zigbee/response/zb-list
+      - pub gateway/$1/ssapi/zigbee/request/zb-list '{"type":"get","path":"zb/dev"}'
+      - sub $1/response/zb-list
+      - pub $1/request/zb-list '{"type":"get","path":"zb/dev"}'
+  ble-scan:
+    description: Start scanning for Bluetooth devices
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/response/ble-scan
+      - sub gateway/$1/ssapi/bluetooth/update/ble/#
+      - pub gateway/$1/ssapi/bluetooth/request/ble-scan '{"type":"update","path":"ble","data":{"enableScan":true}}'
+  ble-scan-stop:
+    description: Stop scanning for Bluetooth devices
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/response/ble-scan
+      - pub gateway/$1/ssapi/bluetooth/request/ble-scan '{"type":"update","path":"ble","data":{"enableScan":false}}'
+  ble-list:
+    description: List all connected Bluetooth devices
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/response/ble-list
+      - pub gateway/$1/ssapi/bluetooth/request/ble-list '{"type":"get","path":"ble/dev"}'
+  ble-bind:
+    description: Bind a bluetooth device to a gateway
+    arguments:
+      - <gw-eui>
+      - <ble-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/response/ble-bind
+      - pub gateway/$1/ssapi/bluetooth/request/ble-bind '{"type":"add","path":"ble/dev","data":{"eui":"$2"}}'
+  ble-unbind:
+    description: Unbind a bluetooth device from a gateway
+    arguments:
+      - <gw-eui>
+      - <ssa-device-id>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/response/ble-unbind
+      - pub gateway/$1/ssapi/bluetooth/request/ble-unbind '{"type":"remove","path":"ble/dev/$2"}'
+  nuki-pair:
+    description: Pair a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/pair
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/pair '{"eui":"$2","action":"pair"}'
+  nuki-unpair:
+    description: Unpair a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/unpair
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/unpair '{"eui":"$2","action":"unpair"}'
+  nuki-read-state:
+    description: Read the state from a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/read-state
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/read-state '{"eui":"$2","action":"read_state"}'
+  nuki-read-config:
+    description: Read the applied config from a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/read-config
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/read-config '{"eui":"$2","action":"read_config"}'
+  nuki-read-logs:
+    description: Read the logs from a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+      - <offset>
+      - <limit>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/read-logs
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/read-logs '{"eui":"$2","action":"read_logs","data":{"offset":$3,"limit":$4}}'
+  nuki-read-all-logs:
+    description: Read the all logs from a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/read-logs
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/read-logs '{"eui":"$2","action":"read_logs","data":{"offset":0,"limit":65535}}'
+  nuki-action:
+    description: Perform an action on a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+      - <command-id>
+      - <payload>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/action
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/action '{"eui":"$2","action":"perform_action","data":{"id":$3,"payload":"$4"}}'
+  nuki-lock:
+    description: Perform a locking of a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/lock
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/lock '{"eui":"$2","action":"perform_lock"}'
+  nuki-open:
+    description: Perform an unlocking/opening of a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/open
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/open '{"eui":"$2","action":"perform_open"}'
+  nuki-log-enable:
+    description: Enable the logging on a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/enable-logging
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/enable-logging '{"eui":"$2","action":"enable_logging"}'
+  nuki-log-disable:
+    description: Disable the logging on a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/disable-logging
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/disable-logging '{"eui":"$2","action":"disable_logging"}'
+  nuki-update-time:
+    description: Update the time on a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/update-time
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/update-time '{"eui":"$2","action":"update_time"}'
+  nuki-reboot:
+    description: Reboot a nuki device.
+    arguments:
+      - <gw-eui>
+      - <nuki-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/reboot
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/reboot '{"eui":"$2","action":"reboot"}'
+  nuki-bind-list:
+    description: List the bind/paired nuki devices for a gateway.
+    arguments:
+      - <gw-eui>
+    commands:
+      - sub gateway/$1/ssapi/bluetooth/nuki/response/list
+      - pub gateway/$1/ssapi/bluetooth/nuki/request/list '{"action":"list"}'
+  enable-vpn:
+    description: Tell all given gateways to enable their vpn
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/command/PROCESS_RESTART
+      - pub gateway/$1/command/PROCESS_RESTART 'openvpn'
+  disable-vpn:
+    description: Tell all given gateways to disable their vpn
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/command/PROCESS_STOP
+      - pub gateway/$1/command/PROCESS_STOP 'openvpn'
+  wmbus-bind-short:
+    description: Bind a device to a gateway
+    arguments: 
+      - <gw-eui> 
+      - <device-id> 
+      - <manufacturer>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-bind-short
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-bind-short '{"type":"add","path":"wm/dev","data":{"serialNumber":"$2","manufacturer":"$3"}}'
+  wmbus-bind-long:
+    description: Bind a device to a gateway
+    arguments: 
+      - <gw-eui> 
+      - <device-id> 
+      - <manufacturer>
+      - <device-type>
+      - <version>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-bind-long
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-bind-long '{"type":"add","path":"wm/dev","data":{"serialNumber":"$2","manufacturer":"$3","deviceType":"$4","version":$5}}'
+  wmbus-bind-json:
+    description: Bind a device to a gateway
+    arguments: 
+      - <gw-eui> 
+      - <device-spec-json>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-bind-json
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-bind-json '{"type":"add","path":"wm/dev","data":$2}'
+  wmbus-configure-lansen-repeater:
+    description: Configura a lansen repeater via WMBUS
+    arguments:
+      - <gw-eui>
+      - <lansen-config-json>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-configure-lansen
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-configure-lansen '{"type":"update","path":"wm/dev/lansen/repeater","data":$2}'
+  wmbus-configure-lansen-repeater-listen-pause-timer:
+    description: Configura a lansen repeater via WMBUS
+    arguments:
+      - <gw-eui>
+      - <repeaterSerial>
+      - <listenTimer>
+      - <pauseTimer>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-configure-lansen
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-configure-lansen '{"type":"update","path":"wm/dev/lansen/repeater","data":{"serialNumber":"$2","listenTimer":$3,"pauseTimer":$4}}'
+  wmbus-configure-lansen-repeater-time:
+    description: Configura a lansen repeater via WMBUS
+    arguments:
+      - <gw-eui>
+      - <repeaterSerial>
+      - <time e.g. 2021-07-27T17:17:41Z>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-configure-lansen
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-configure-lansen '{"type":"update","path":"wm/dev/lansen/repeater","data":{"serialNumber":"$2","time":"$3"}}'
+  wmbus-configure-lansen-repeater-next-hop:
+    description: Configura a lansen repeater via WMBUS
+    arguments:
+      - <gw-eui>
+      - <repeaterSerial>
+      - <next hop repeater serial>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-configure-lansen
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-configure-lansen '{"type":"update","path":"wm/dev/lansen/repeater","data":{"serialNumber":"$2","nextHopRepeater":"$3"}}'
+  wmbus-configure-lansen-repeater-retransmit-repeater:
+    description: Configura a lansen repeater via WMBUS
+    arguments:
+      - <gw-eui>
+      - <repeaterSerial>
+      - <retransmit repeater serial>
+      - <config slot (0-3)>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-configure-lansen
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-configure-lansen '{"type":"update","path":"wm/dev/lansen/repeater","data":{"serialNumber":"$2","retransmitRepeater$4":"$3"}}'
+  wmbus-configure-lansen-repeater-append-rssi:
+    description: Configura a lansen repeater via WMBUS
+    arguments:
+      - <gw-eui>
+      - <repeaterSerial>
+      - <appendRssi (true/false)>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-configure-lansen
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-configure-lansen '{"type":"update","path":"wm/dev/lansen/repeater","data":{"serialNumber":"$2","appendRssi":$3}}'
+  gw-watch:
+    description: Subscribe all topics about a given gateway
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub $1/#
+      - sub gateway/$1/#
+  gw-unwatch:
+    description: Unsubscribe from all topics about a given gateway
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - unsub $1/#
+      - unsub gateway/$1/#
+  pdp-restart:
+    arguments: 
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$1/command/PROCESS_RESTART
+      - pub gateway/$1/command/PROCESS_RESTART 'poc-device-updater'
+  zb-unbind:
+    description: Trigger an unbind on the given gateway for the given device id (squidsmartapp internal id)
+    arguments: 
+      - <gw-eui> 
+      - <device-id>
+    commands:
+      - sub gateway/$1/ssapi/zigbee/response/zb-unbind
+      - pub gateway/$1/ssapi/zigbee/request/zb-unbind '{"type":"remove","path":"zb/dev/$2"}'
+  mesh-status:
+    arguments: 
+      - <gw-eui>
+    commands:
+      - sub gateway/$1/command/MESH_STATUS/+
+      - pub gateway/$1/command/MESH_STATUS '1'
+  mesh-change-ssid:
+    arguments: 
+      - <ssid>
+      - <gw-eui>
+      - <gw-eui...>
+    commands:
+      - sub gateway/$2/command/MESH_CHANGE_SSID/+
+      - pub gateway/$2/command/MESH_CHANGE_SSID '$1 $3'
+  wmbus-reset-modem:
+    description: Perform a wmbus-modem reset
+    arguments:
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - pub gateway/$1/command/PROCESS_RESTART 'reset-wmbus-modem'
+  network-speed-test:
+    description: Starts a network speed test on the given gateway. 
+    arguments:
+      - <env>
+      - <gw-eui...>
+    varargs: true
+    commands:
+      - sub gateway/$2/command/NETWORK_SPEED_TEST/result/+ | jq '.setup.timeout = .setup.timeout / 1e9 | .connectionDuration = .connectionDuration / 1e9 | .transferDuration = .transferDuration / 1e9 | .transferRate = .transferredBytes / .transferDuration | ."transferRate (kBytes/sec)" = .transferRate / 1024 | ."transferRate (MBytes/sec)" = .transferRate / 1024 / 1024'
+      - sub gateway/$2/command/NETWORK_SPEED_TEST/error
+      - pub gateway/$2/command/NETWORK_SPEED_TEST '{"upload":{"url":"https://$1.backend.gk4null.de/network-speed-test/up?gw=$2","size":1048576,"timeout":"10m"},"download":{"url":"https://$1.backend.gk4null.de/network-speed-test/down/10485760?gw=$2","timeout":"10m"}}'
+  wmbus-modbus-forward-json:
+    description: Forward a lansen modbus master request to slave via WMBUS using json
+    arguments:
+      - <gw-eui>
+      - <lansen-modbus-json>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-modbus-lansen
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-modbus-lansen '{"type":"forward","path":"wm/dev/lansen/modbus","data":$2}'
+  wmbus-modbus-forward-slave:
+    description: Forward a modbus slave request via WMBUS
+    arguments:
+      - <gw-eui>
+      - <serialNumber>
+      - <modbusMessage>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-modbus-lansen
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-modbus-lansen '{"type":"forward","path":"wm/dev/lansen/modbus","data":{"serialNumber":"$2","modbusMessage":"$3"}}'
+  wmbus-modbus-forward-slave-repeatedly:
+    description: Forward a modbus slave request repeatedly via WMBUS
+    arguments:
+      - <gw-eui>
+      - <serialNumber>
+      - <modbusMessage>
+      - <messageStoreIndex>
+      - <repeatMessageInterval>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-modbus-lansen
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-modbus-lansen '{"type":"forward","path":"wm/dev/lansen/modbus","data":{"serialNumber":"$2","modbusMessage":"$3","messageStoreIndex":$4,"repeatMessageInterval":$5}}'
+  wmbus-modbus-get:
+    description: Get stored lansen modbus master message via WMBUS
+    arguments:
+      - <gw-eui>
+      - <serialNumber>
+      - <messageStoreIndex>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-modbus-lansen
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-modbus-lansen '{"type":"get","path":"wm/dev/lansen/modbus","data":{"serialNumber":"$2","messageStoreIndex":$3}}'
+  wmbus-modbus-get-with-timeout:
+    description: Get stored lansen modbus master message via WMBUS with timeout
+    arguments:
+      - <gw-eui>
+      - <serialNumber>
+      - <messageStoreIndex>
+      - <timeout>
+    commands:
+      - sub gateway/$1/ssapi/wmbus/response/wmbus-modbus-lansen
+      - pub gateway/$1/ssapi/wmbus/request/wmbus-modbus-lansen '{"type":"get","path":"wm/dev/lansen/modbus","data":{"serialNumber":"$2","messageStoreIndex":$3,"timeout":$4}}'
